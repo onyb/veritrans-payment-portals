@@ -1,11 +1,9 @@
 from flask import Module, jsonify, request
 from flask.views import MethodView
 
-from core.api.utils.RequestValidator import PaymentDataValidator
-
-from core.api.decorators import jsonp
-
 from core.api import API
+from core.api.decorators import jsonp
+from core.api.utils.RequestValidator import PaymentDataValidator
 
 api = Module(
     __name__,
@@ -26,7 +24,7 @@ def index():
     """
     return jsonify_status_code(
         code=400,
-        message='Room no 404: File not found'
+        message='Room no 404: File not found. HTTP GET requests to API root are not allowed.'
     )
 
 
@@ -62,13 +60,41 @@ class Payments(MethodView):
 class PaymentsList(MethodView):
     @jsonp
     def get(self):
-        payments = list(
-            API.mongo_client.db.payments.find({}, {'_id': 0})
+        try:
+            page = int(request.args.get('page', 1))
+        except ValueError:
+            page = 1
+
+        if page < 1:
+            page = 1
+
+        try:
+            limit = int(request.args.get('limit', 3))
+        except ValueError:
+            limit = 3
+
+        cursor = API.mongo_client.db.payments.find(
+            {}, {'_id': 0}
+        ).sort(
+            'rating', -1
+        )
+
+        count = cursor.count()
+
+        data = list(
+            cursor.skip(
+                (page-1)*limit
+            ).limit(
+                limit
+            )
         )
 
         return jsonify(
             code=200,
-            data=payments
+            count=count,
+            page=page,
+            limit=limit,
+            data=data
         )
 
     @jsonp
