@@ -79,7 +79,9 @@ class PaymentDataValidator(RequestValidator):
         if type(data['how_to_url']) is not PaymentDataValidator.__toplevel__['how_to_url']:
             return False
 
-        if type(data['currencies']) is not PaymentDataValidator.__toplevel__['currencies']:
+        if type(data['currencies']) is PaymentDataValidator.__toplevel__['currencies']:
+            data['currencies'] = [each.strip() for each in data['currencies'].split(',')]
+        else:
             return False
 
         return True
