@@ -62,14 +62,12 @@ class Payments(MethodView):
 class PaymentsList(MethodView):
     @jsonp
     def get(self):
-
         payments = list(
             API.mongo_client.db.payments.find()
         )
 
         return jsonify(
             code=200,
-            count=len(payments),
             data=payments
         )
 
@@ -79,6 +77,25 @@ class PaymentsList(MethodView):
             code=405,
             message='HTTP method POST is not allowed for this URL'
         )
+
+
+class PaymentsCount(MethodView):
+    @jsonp
+    def get(self):
+        count = API.mongo_client.db.payments.find().count()
+
+        return jsonify(
+            code=200,
+            count=count
+        )
+
+    @jsonp
+    def post(self):
+        return jsonify_status_code(
+            code=405,
+            message='HTTP method POST is not allowed for this URL'
+        )
+
 
 Payments_view = Payments.as_view('payments')
 api.add_url_rule(
@@ -91,5 +108,12 @@ PaymentsList_view = PaymentsList.as_view('payments_list')
 api.add_url_rule(
     '/payments/list',
     view_func=PaymentsList_view,
+    methods=['GET', 'POST']
+)
+
+PaymentsCount_view = PaymentsCount.as_view('payments_count')
+api.add_url_rule(
+    '/payments/count',
+    view_func=PaymentsCount_view,
     methods=['GET', 'POST']
 )
