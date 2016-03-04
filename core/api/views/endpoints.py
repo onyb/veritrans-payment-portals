@@ -83,7 +83,7 @@ class PaymentsList(MethodView):
 
         data = list(
             cursor.skip(
-                (page-1)*limit
+                (page - 1) * limit
             ).limit(
                 limit
             )
@@ -123,6 +123,79 @@ class PaymentsCount(MethodView):
         )
 
 
+class PaymentsSearch(MethodView):
+    @jsonp
+    def get(self):
+        try:
+            page = int(request.args.get('page', 1))
+        except ValueError:
+            page = 1
+
+        if page < 1:
+            page = 1
+
+        try:
+            limit = int(request.args.get('limit', 3))
+        except ValueError:
+            limit = 3
+
+        name = request.args.get('name', None)
+
+        if name:
+            name_cursor = API.mongo_client.db.payments.find(
+                {
+                    '$text':
+                        {
+                            '$search': name
+                        }
+                },
+                {
+                    '_id': 0,
+                    'search_score':
+                        {
+                            '$meta': 'textScore'
+                        }
+                }
+            ).sort(
+                [
+                    (
+                        'search_score', {'$meta': 'textScore'}
+                    ),
+                    (
+                        'rating', -1
+                    )
+                ]
+            )
+
+            data = list(
+                name_cursor.skip(
+                    (page - 1) * limit
+                ).limit(
+                    limit
+                )
+            )
+
+            count = name_cursor.count()
+        else:
+            count = 0
+            data = []
+
+        return jsonify(
+            code=200,
+            data=data,
+            count=count,
+            page=page,
+            limit=limit
+        )
+
+    @jsonp
+    def post(self):
+        return jsonify_status_code(
+            code=405,
+            message='HTTP method POST is not allowed for this URL'
+        )
+
+
 Payments_view = Payments.as_view('payments')
 api.add_url_rule(
     '/payments',
@@ -141,5 +214,12 @@ PaymentsCount_view = PaymentsCount.as_view('payments_count')
 api.add_url_rule(
     '/payments/count',
     view_func=PaymentsCount_view,
+    methods=['GET', 'POST']
+)
+
+PaymentsSearch_view = PaymentsSearch.as_view('payments_search')
+api.add_url_rule(
+    '/payments/search',
+    view_func=PaymentsSearch_view,
     methods=['GET', 'POST']
 )

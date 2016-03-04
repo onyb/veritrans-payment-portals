@@ -95,6 +95,13 @@ class PaymentDataValidator(RequestValidator):
         else:
             return False
 
+        if API.mongo_client.db.payments.find().count() == 0:
+            API.mongo_client.db.payments.create_index(
+                [
+                    ('name', 'text')
+                ]
+            )
+
         API.mongo_client.db.payments.insert_one(
             data
         )
