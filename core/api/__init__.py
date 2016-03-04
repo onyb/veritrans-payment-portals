@@ -4,9 +4,8 @@ from flask import Flask, jsonify
 from werkzeug.exceptions import HTTPException, default_exceptions
 
 from flask_pymongo import BSONObjectIdConverter
+from flask_pymongo import PyMongo
 from core.api import settings
-from core.api.models import db
-
 
 def create_app(environment=None):
     """
@@ -37,7 +36,15 @@ def create_app(environment=None):
     from core.api.views.endpoints import api
     app.register_module(api)
 
-    # initialize modules
-    db.init_app(app)
-
     return app
+
+
+class API(object):
+    app = None
+    mongo_client = None
+
+    @staticmethod
+    def init():
+        env = os.environ.get('SITE_NAME', 'Dev')
+        API.app = create_app(env)
+        API.mongo_client = PyMongo(API.app)

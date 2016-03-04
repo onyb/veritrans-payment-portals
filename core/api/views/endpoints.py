@@ -1,7 +1,11 @@
 from flask import Module, jsonify, request
 from flask.views import MethodView
 
+from core.api.utils.RequestValidator import PaymentDataValidator
+
 from core.api.decorators import jsonp
+
+from core.api import API
 
 api = Module(
     __name__,
@@ -43,13 +47,49 @@ class Payments(MethodView):
                 message='Bad HTTP POST request'
             )
         else:
-            # Validate JSON
-            pass
+            if PaymentDataValidator.check_elements(content) and PaymentDataValidator.validator(content):
+                return jsonify_status_code(
+                    code=200,
+                    message='HTTP POST request successful'
+                )
+            else:
+                return jsonify_status_code(
+                    code=400,
+                    message='Bad HTTP POST request'
+                )
 
+
+class PaymentsList(MethodView):
+    @jsonp
+    def get(self):
+
+        payments = list(
+            API.mongo_client.db.payments.find()
+        )
+
+        return jsonify(
+            code=200,
+            count=len(payments),
+            data=payments
+        )
+
+    @jsonp
+    def post(self):
+        return jsonify_status_code(
+            code=405,
+            message='HTTP method POST is not allowed for this URL'
+        )
 
 Payments_view = Payments.as_view('payments')
 api.add_url_rule(
     '/payments',
     view_func=Payments_view,
+    methods=['GET', 'POST']
+)
+
+PaymentsList_view = PaymentsList.as_view('payments_list')
+api.add_url_rule(
+    '/payments/list',
+    view_func=PaymentsList_view,
     methods=['GET', 'POST']
 )

@@ -1,9 +1,9 @@
 import os
 
-from core.api import create_app
+from core.api import API
 
-env = os.environ.get('SITE_NAME', 'Dev')
-app = create_app(env)
+
+API.init()
 
 if __name__ == "__main__":
     port = int(
@@ -12,7 +12,7 @@ if __name__ == "__main__":
             5000
         )
     )
-    app.run(
+    API.app.run(
         host='0.0.0.0',
         port=port
     )

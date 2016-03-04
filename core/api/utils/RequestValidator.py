@@ -1,3 +1,5 @@
+from core.api import API
+
 class RequestValidator(object):
     REQUIRED = True
     OPTIONAL = False
@@ -77,11 +79,16 @@ class PaymentDataValidator(RequestValidator):
             return False
 
         if type(data['how_to_url']) is not PaymentDataValidator.__toplevel__['how_to_url']:
+
             return False
 
         if type(data['currencies']) is PaymentDataValidator.__toplevel__['currencies']:
             data['currencies'] = [each.strip() for each in data['currencies'].split(',')]
         else:
             return False
+
+        API.mongo_client.db.payments.insert_one(
+            data
+        )
 
         return True
