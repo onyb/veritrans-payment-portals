@@ -1,17 +1,14 @@
 import os
 
 from flask import Flask, jsonify
+from flask_pymongo import PyMongo, BSONObjectIdConverter
 from werkzeug.exceptions import HTTPException, default_exceptions
 
-from flask_pymongo import BSONObjectIdConverter
-from flask_pymongo import PyMongo
 from core.api import settings
 
+
 def create_app(environment=None):
-    """
-    Create an app instance
-    """
-    app = Flask('core')
+    app = Flask('veritrans')
     app.url_map.converters['ObjectId'] = BSONObjectIdConverter
 
     # Config app for environment

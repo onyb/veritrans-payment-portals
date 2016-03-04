@@ -9,13 +9,14 @@ class RequestValidator(object):
 
 class PaymentDataValidator(RequestValidator):
     __toplevel__ = {
+        'id': str,
         'name': str,
         'image': str,
         'description': str,
         'branding': bool,
         'rating': float,
         'setup_fee': bool,
-        'transaction_fee': str,
+        'transaction_fees': str,
         'how_to_url': str,
         'currencies': str
     }
@@ -34,6 +35,9 @@ class PaymentDataValidator(RequestValidator):
 
     @staticmethod
     def validator(data: dict) -> bool:
+        if type(data['id']) is not PaymentDataValidator.__toplevel__['id']:
+            return False
+
         if type(data['name']) is not PaymentDataValidator.__toplevel__['name']:
             return False
 
@@ -58,7 +62,7 @@ class PaymentDataValidator(RequestValidator):
 
         if type(data['rating']) is not PaymentDataValidator.__toplevel__['rating']:
             try:
-                rating = float(data['setup_fee'])
+                rating = float(data['rating'])
             except ValueError:
                 return False
             else:
@@ -77,7 +81,7 @@ class PaymentDataValidator(RequestValidator):
                 else:
                     return False
 
-        if type(data['transaction_fee']) is not PaymentDataValidator.__toplevel__['transaction_fee']:
+        if type(data['transaction_fees']) is not PaymentDataValidator.__toplevel__['transaction_fees']:
             return False
 
         if type(data['how_to_url']) is not PaymentDataValidator.__toplevel__['how_to_url']:

@@ -63,7 +63,7 @@ class PaymentsList(MethodView):
     @jsonp
     def get(self):
         payments = list(
-            API.mongo_client.db.payments.find()
+            API.mongo_client.db.payments.find({}, {'_id': 0})
         )
 
         return jsonify(
