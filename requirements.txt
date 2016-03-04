@@ -5,3 +5,4 @@ MarkupSafe
 Werkzeug
 Flask-PyMongo
 validators
+gunicorn
