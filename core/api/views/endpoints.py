@@ -140,8 +140,51 @@ class PaymentsSearch(MethodView):
             limit = 3
 
         name = request.args.get('name', None)
+        currency = request.args.get('currency', None)
 
-        if name:
+        if currency:
+            currency = currency.upper()
+
+        if name and currency:
+            cursor = API.mongo_client.db.payments.find(
+                {
+                    'currencies':
+                        {
+                            '$elemMatch': {'$eq': currency}
+                        },
+                    '$text':
+                        {
+                            '$search': name
+                        }
+                },
+                {
+                    '_id': 0,
+                    'search_score':
+                        {
+                            '$meta': 'textScore'
+                        }
+                }
+            ).sort(
+                [
+                    (
+                        'search_score', {'$meta': 'textScore'}
+                    ),
+                    (
+                        'rating', -1
+                    )
+                ]
+            )
+
+            data = list(
+                cursor.skip(
+                    (page - 1) * limit
+                ).limit(
+                    limit
+                )
+            )
+
+            count = cursor.count()
+        elif name and not currency:
             name_cursor = API.mongo_client.db.payments.find(
                 {
                     '$text':
@@ -167,6 +210,8 @@ class PaymentsSearch(MethodView):
                 ]
             )
 
+            count = name_cursor.count()
+
             data = list(
                 name_cursor.skip(
                     (page - 1) * limit
@@ -175,7 +220,35 @@ class PaymentsSearch(MethodView):
                 )
             )
 
-            count = name_cursor.count()
+        elif not name and currency:
+            currency_cursor = API.mongo_client.db.payments.find(
+                {
+                    'currencies':
+                        {
+                            '$elemMatch': {'$eq': currency}
+                        }
+                },
+                {
+                    '_id': 0
+                }
+            ).sort(
+                [
+                    (
+                        'rating', -1
+                    )
+                ]
+            )
+
+            data = list(
+                currency_cursor.skip(
+                    (page - 1) * limit
+                ).limit(
+                    limit
+                )
+            )
+
+            count = currency_cursor.count()
+
         else:
             count = 0
             data = []
