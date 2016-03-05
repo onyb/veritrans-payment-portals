@@ -42,6 +42,5 @@ class API(object):
 
     @staticmethod
     def init():
-        env = os.environ.get('SITE_NAME', 'Dev')
-        API.app = create_app(env)
+        API.app = create_app()
         API.mongo_client = PyMongo(API.app)
