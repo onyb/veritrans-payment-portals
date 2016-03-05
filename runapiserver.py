@@ -1,7 +1,9 @@
+#! /usr/bin/env python
+# coding:utf-8
+
 import os
 
 from core.api import API
-
 
 API.init()
 

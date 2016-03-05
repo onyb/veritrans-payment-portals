@@ -1,3 +1,6 @@
+#! /usr/bin/env python
+# coding:utf-8
+
 from functools import wraps
 
 from flask import request, current_app

@@ -1,5 +1,9 @@
-from core.api import API
+#! /usr/bin/env python
+# coding:utf-8
+
 import validators
+
+from core.api import API
 
 
 class RequestValidator(object):
