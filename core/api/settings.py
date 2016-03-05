@@ -8,11 +8,11 @@ class Config(object):
 
 class Prod(Config):
     DEBUG = False
-    MONGO_URL = os.environ['MONGO_URL']
+    MONGO_URI = os.environ['MONGO_URI']
 
 
 class Dev(Config):
     DEBUG = True
-    MONGO_URL = {
+    MONGO_URI = {
         'host': 'mongodb://USERNAME:PASSWORD@HOST',
     }
