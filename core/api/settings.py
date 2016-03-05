@@ -1,32 +1,18 @@
 import os
 
 
-class _Config(object):
-    DEBUG = True
-    TESTING = False
-
+class Config(object):
+    DEBUG = False
     ROOT_DIR = os.environ['HOME']
 
 
-class Prod(_Config):
+class Prod(Config):
     DEBUG = False
-    TESTING = False
-    MONGODB_SETTINGS = {
-        'host': 'mongodb://USERNAME:PASSWORD@HOST',
-    }
+    MONGO_URL = os.environ['MONGO_URL']
 
 
-class Dev(_Config):
-    NAME = "Dev"
+class Dev(Config):
     DEBUG = True
-    MONGODB_SETTINGS = {
+    MONGO_URL = {
         'host': 'mongodb://USERNAME:PASSWORD@HOST',
-    }
-
-
-class Testing(_Config):
-    NAME = "Test"
-    TESTING = True
-    MONGODB_SETTINGS = {
-        'db': 'test_db'
     }

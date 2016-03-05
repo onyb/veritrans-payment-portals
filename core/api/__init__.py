@@ -13,7 +13,7 @@ def create_app(environment=None):
 
     # Config app for environment
     if not environment:
-        environment = os.environ.get('BACKEND_ENVIRONMENT', 'Dev')
+        environment = os.environ.get('BACKEND_ENVIRONMENT', 'Prod')
 
     app.config.from_object('core.api.settings.%s' % environment)
 
